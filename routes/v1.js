@@ -18,12 +18,8 @@ router.put('/Answer/:question', AnswersController.answerQuestion)
 router.get('/DrivingSchool', DrivingSchoolController.show)
 
 router.get('/EducationClasses', EducationClassesController.index)
-
 router.post('/EducationClasses', EducationClassesController.store)
-
-router.post('/EducationClasses', EducationClassesController.store)
-
-router.post('/EducationClasses/:category', EducationClassesController.update)
+router.put('/EducationClasses/:category', EducationClassesController.update)
 
 router.get('/Topics', TopicsController.index)
 router.get('/Topics/EducationClasses', TopicsController.educationClasses)
