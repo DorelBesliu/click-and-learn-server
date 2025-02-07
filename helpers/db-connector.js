@@ -1,6 +1,6 @@
 const mysql = require("mysql2/promise");
 
-const pool = mysql.createPool({
+const poolConfig = {
     host: '52.58.104.176',
     user: 'besliu_tudor',
     password: 'Tudor@1234',
@@ -8,7 +8,11 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+}
+
+console.log({ poolConfig });
+
+const pool = mysql.createPool(poolConfig);
 
 // Helper function for executing queries
 const query = async (sql, values) => {
