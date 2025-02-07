@@ -53,13 +53,4 @@ router.get('/Questions/WrongAnswered', QuestionsController.wrongAnswered)
 
 router.get("/UserInfo", UserController.show);
 
-router.get("/test-firebase", async (req, res) => {
-    try {
-        const users = await admin.auth().listUsers();
-        res.json({ users });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 module.exports = router;

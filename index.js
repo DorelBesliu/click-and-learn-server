@@ -31,4 +31,14 @@ app.use(passport.session());
 app.use('/api/v1', checkAuth, v1Routes);
 app.use('/', authRoutes);
 
+app.get("/test-firebase", async (req, res) => {
+    try {
+        const users = await admin.auth().listUsers();
+        res.json({ users });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 app.listen(port)
