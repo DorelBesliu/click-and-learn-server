@@ -1,7 +1,7 @@
 const mysql = require("mysql2/promise");
 
 const poolConfig = {
-    host: '52.58.104.176',
+    host: '127.0.0.1',
     user: 'besliu_tudor',
     password: 'Tudor@1234',
     database: 'click-and-learn',
