@@ -4,11 +4,19 @@ const {getUser} = require("../helpers/user");
 class EducationClassesController {
     static async index(req, res) {
         try {
+            const user = await getUser(req.user.uid);
+
             const categories = await query('SELECT * FROM education_categories');
+            const userCategories = await query('SELECT * FROM education_category_user where user_id = ?', [user.id]);
+
+            const userCategoriesIds = userCategories.map(item => item.education_category_id)
+
+            console.log({userCategoriesIds})
 
             const educationCategories = categories.map(item => ({
                 id: item.id,
-                name: item.name
+                name: item.name,
+                selected: userCategoriesIds.includes(item.id),
             }));
 
             res.status(200).json(educationCategories);
