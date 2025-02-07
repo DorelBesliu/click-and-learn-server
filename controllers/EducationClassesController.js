@@ -69,7 +69,7 @@ class EducationClassesController {
                 await query('UPDATE users SET education_categories_initial = ? WHERE id = ?', [!!requestBody.basic, user.id]);
             }
 
-            const [userEducationCategories] = await query(
+            const userEducationCategories = await query(
                 'SELECT * FROM education_category_user WHERE user_id = ? AND education_category_id = ?',
                 [user.id, classeId]
             );
