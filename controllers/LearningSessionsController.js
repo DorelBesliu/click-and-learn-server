@@ -93,7 +93,7 @@ class LearningSessionsController {
                 [requestBody.session, requestBody.type, examMode, user.id]
             );
 
-            const [sessions] = await query('SELECT * FROM user_sessions WHERE id = ?', [insertResult.insertId]);
+            const sessions = await query('SELECT * FROM user_sessions WHERE id = ?', [insertResult.insertId]);
 
             const session = sessions[0];
             res.status(200).json({
