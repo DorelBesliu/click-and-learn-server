@@ -156,7 +156,7 @@ class LearningSessionsController {
 
     static async evaluate (req, res) {
         try {
-            const { sessionId } = req.params;
+            const sessionId = req.params.session;
 
             const user = await getUser(req.user.uid);
             let session = await getSession(user.id, sessionId);
@@ -250,6 +250,8 @@ class LearningSessionsController {
 
 const getSession = async (userId, sessionHash) => {
     const sessions = await query('SELECT * from user_sessions where user_id = ? and session_hash = ?', [userId, sessionHash]);
+
+    console.log({ userId, sessionHash })
 
     return sessions[0];
 }
