@@ -9,14 +9,14 @@ class AnswersController {
 
         try {
             const user = await getUser(req.user.uid);
-            const [questions] = await query('SELECT * from questions where id = ' + questionId);
+            const questions = await query('SELECT * from questions where id = ' + questionId);
             const question = questions[0] || {}
 
             if (!question) {
                 return res.status(404).json({ message: 'Question not found' });
             }
 
-            const [sessions] = await query(
+            const sessions = await query(
                 'SELECT * FROM user_sessions WHERE user_id = ? AND session_hash = ?',
                 [user.id, session]
             );

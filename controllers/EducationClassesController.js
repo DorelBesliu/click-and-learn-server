@@ -11,8 +11,6 @@ class EducationClassesController {
 
             const userCategoriesIds = userCategories.map(item => item.education_category_id)
 
-            console.log({userCategoriesIds})
-
             const educationCategories = categories.map(item => ({
                 id: item.id,
                 name: item.name,
