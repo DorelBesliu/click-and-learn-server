@@ -249,7 +249,7 @@ class LearningSessionsController {
 }
 
 const getSession = async (userId, sessionHash) => {
-    const [sessions] = await query('SELECT * from user_sessions where user_id = ? and session_hash = ?', [userId, sessionHash]);
+    const sessions = await query('SELECT * from user_sessions where user_id = ? and session_hash = ?', [userId, sessionHash]);
 
     return sessions[0];
 }
