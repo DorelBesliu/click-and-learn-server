@@ -224,54 +224,82 @@ class QuestionsController {
     }
 
     static async forExam(req, res) {
+        const requestBody = req.query ?? {};
+
         try {
-            const { points, search } = req.query;
-
             const user = await getUser(req.user.uid);
-            const whereQueries = [];
 
-            if (points) {
-                whereQueries.push(`points = ?`);
-            }
-
-            if (search) {
-                whereQueries.push(`question LIKE ?`);
-            }
-
-            let whereQuery = whereQueries.length > 0 ? `WHERE ${whereQueries.join(' AND ')}` : '';
             const languages = await query('SELECT id, code FROM languages');
-
             const languageCodeId = languages.reduce((acc, item) => {
                 acc[item.code] = item.id;
                 return acc;
             }, {});
 
+            const sessions = await query(
+                'SELECT * FROM user_sessions WHERE user_id = ? AND session_hash = ?',
+                [user.id, requestBody.session]
+            );
+            const session = sessions[0];
+
+            let categories = {};
+            let questions = [];
+            let questionsIds = [];
+
             const userQuestionJoinQuery = 'LEFT JOIN user_question ON questions.id = user_question.question_id';
             const isMarkedQuery = 'CASE WHEN user_question.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked';
-            const answersJoinQuery = 'JOIN question_answers ON questions.id = question_answers.question_id';
 
-            const questions = await query(
-                `SELECT *, questions.id AS id, ${isMarkedQuery} FROM questions ${answersJoinQuery} ${userQuestionJoinQuery} ${whereQuery} LIMIT 600`,
-                [points, search ? `%${search}%` : undefined].filter(Boolean)
+            if (session?.data) {
+                session.data.forEach(item => categories[item.category] = item.questions);
+
+                const questionsRows = await query(
+                    `SELECT *, ${isMarkedQuery} FROM questions ${userQuestionJoinQuery} WHERE id IN (${Object.values(categories).flat().join(',')})`
+                );
+
+                const questionsMap = new Map(questionsRows.map(q => [q.id, q]));
+                const orderedQuestionIds = Object.values(categories).flat();
+                questions = orderedQuestionIds.map(id => questionsMap.get(id));
+            } else {
+                // Select random 30 questions
+                questions = await query(
+                    `SELECT *, ${isMarkedQuery} FROM questions ${userQuestionJoinQuery} ORDER BY RAND() LIMIT 30`
+                );
+                questionsIds = questions.map(item => item.id);
+
+                categories = {
+                    basic: questionsIds.slice(0, 19),
+                    a: questionsIds.slice(19, 24),
+                    b: questionsIds.slice(24, 29)
+                };
+
+                const stringifiedCategories = JSON.stringify(
+                    Object.keys(categories).map(key => ({ category: key, questions: categories[key] }))
+                );
+
+                await query(
+                    'UPDATE user_sessions SET data = ? WHERE id = ?',
+                    [stringifiedCategories, session.id]
+                );
+            }
+
+            // Fetch answers
+            const languagesIds = new Set([user.language_id, languageCodeId['DE']]);
+            const questionsAnswers = await query(
+                `SELECT * FROM question_answers WHERE language_id IN (${Array.from(languagesIds).join(',')})`
             );
 
-            const languagesIds = new Set([user.language_id, languageCodeId['DE']]);
-            const questionsAnswers = await query('SELECT * FROM question_answers WHERE language_id IN (?)', [Array.from(languagesIds)]);
+            const answers = questions.map(question => ({
+                questionId: question.id,
+                inUserLanguage: questionsAnswers.find(item => item.question_id === question.id && item.language_id === user.language_id),
+                inDELanguage: questionsAnswers.find(item => item.question_id === question.id && item.language_id === languageCodeId['DE'])
+            }));
 
-            const answers = questions.map(question => {
-                const questionAnswers = questionsAnswers.filter(item => item.question_id === question.id);
-
-                return {
-                    questionId: question.id,
-                    inUserLanguage: questionAnswers.find(item => item.language_id === user.language_id),
-                    inDELanguage: questionAnswers.find(item => item.language_id === languageCodeId['DE'])
-                };
+            return res.status(200).json({
+                questions: questionResource(questions, answers),
+                categories
             });
-
-            res.status(200).json(questionResource(questions, answers));
         } catch (error) {
             console.error('Error:', error);
-            res.status(500).json({ message: 'Something went wrong' });
+            return res.status(500).json({ message: 'Something went wrong' });
         }
     }
 
