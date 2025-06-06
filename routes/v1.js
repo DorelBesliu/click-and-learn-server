@@ -27,7 +27,7 @@ router.get('/Topics/EducationClasses', TopicsController.educationClasses)
 router.get('/ErrorPointsQuestions', ErrorPointsQuestionsController.index)
 
 router.get('/Languages', LanguagesController.index)
-router.put('/Languages', LanguagesController.update)
+router.put('/Languages/:id', LanguagesController.update)
 
 router.get('/LearningSessions', LearningSessionsController.index)
 router.post('/LearningSessions', LearningSessionsController.store)
