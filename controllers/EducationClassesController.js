@@ -71,9 +71,11 @@ class EducationClassesController {
         try {
             const user = await getUser(req.user.uid);
 
-            if (Object.hasOwn(requestBody, 'basic')) {
-                await query('UPDATE users SET education_categories_initial = ? WHERE id = ?', [!!requestBody.basic, user.id]);
+            if (!!requestBody.initial !== Boolean(user.education_categories_initial)) {
+                await query('DELETE FROM education_category_user WHERE user_id = ?', [user.id]);
             }
+
+            await query('UPDATE users SET education_categories_initial = ? WHERE id = ?', [!!requestBody.initial, user.id]);
 
             const userEducationCategories = await query(
                 'SELECT * FROM education_category_user WHERE user_id = ? AND education_category_id = ?',

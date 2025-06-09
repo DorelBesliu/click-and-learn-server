@@ -19,7 +19,7 @@ class UserController {
                 schoolId: user.school_id,
                 languageId: user.language_id || null,
                 language: languages.length > 0 ? languages[0].code : 'de',
-                educationCategoriesInitial: user.education_categories_initial,
+                educationCategoriesInitial: Boolean(user.education_categories_initial),
                 educationCategories: educationCategories.map(item => item.education_category_id)
             });
         } catch (error) {

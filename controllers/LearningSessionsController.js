@@ -8,7 +8,6 @@ class LearningSessionsController {
 
             const user = await getUser(req.user.uid);
 
-            const showAllQuery = showAll ? '' : 'LIMIT 10';
             const screenTypeQuery = screenType ? `AND screen_type = '${screenType}'` : '';
 
             const sessionsCount = await query(
@@ -17,7 +16,7 @@ class LearningSessionsController {
             );
 
             const sessions = await query(
-                `SELECT * FROM user_sessions WHERE user_id = ? ${screenTypeQuery} ORDER BY started_at DESC ${showAllQuery}`,
+                `SELECT * FROM user_sessions WHERE user_id = ? ${screenTypeQuery} ORDER BY started_at DESC`,
                 [user.id]
             );
 

@@ -20,9 +20,10 @@ class LanguagesController {
 
     static async update (req, res) {
         try {
-            console.log({req})
-            const requestedLanguageId = req.params.langId;
+            const requestedLanguageId = req.params.id;
             const user = await getUser(req.user.uid);
+
+            console.log({requestedLanguageId, userLanguageId: user.language_id})
 
             if (user && requestedLanguageId !== user.language_id) {
                 await query("UPDATE users SET language_id = ? WHERE id = ?", [requestedLanguageId, user.id]);
